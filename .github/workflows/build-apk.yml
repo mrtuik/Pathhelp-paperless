@@ -64,7 +64,20 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
+      # APK goes to GitHub Releases (does not use the Actions artifact storage quota).
+      - name: Publish APK to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk pathhelp-debug.apk
+          gh release create "build-${{ github.run_number }}" pathhelp-debug.apk \
+            --title "Debug build ${{ github.run_number }}" \
+            --notes "Debug APK" \
+            --target "${{ github.sha }}"
+
+      # Optional extra copy; a full artifact quota must not fail the run.
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: pathhelp-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
@@ -111,6 +124,7 @@ jobs:
       - name: Upload signed release APK
         if: env.HAS_SIGNING == 'true'
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: pathhelp-release-apk
           path: release-out/pathhelp-release.apk

@@ -39,7 +39,7 @@ Steps: install, `npm test`, `npm run build`, `cap sync`, `./gradlew assembleDebu
 ## 4. Download and install
 
 1. Open the finished workflow run on GitHub.
-2. Under **Artifacts**, download `pathhelp-debug-apk` (a zip) and unzip it to get `app-debug.apk`.
+2. Open the repo **Releases** page, find the newest `build-N` release and download `pathhelp-debug.apk`.
 3. Copy the APK to the phone, open it, and allow "Install unknown apps" when asked.
 
 ## 5. Optional: signed release APK
