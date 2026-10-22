@@ -4,6 +4,8 @@ Take a photo of the Horiba rack screen. The app reads the PT numbers (for exampl
 
 React 18 + Vite + TypeScript + Capacitor 6. The backend is your existing Google Apps Script web app (nothing to host).
 
+**OCR runs on the phone** (Google ML Kit text recognition, bundled model). It works offline and has no usage limit. The app reads the PT numbers and rack number itself, then only `list`, `done` and `save` talk to Apps Script. The Drive API service and the `ocr` action are no longer needed.
+
 ## 1. The token
 
 The token lives in `src/config.ts`:
@@ -73,7 +75,7 @@ When all four exist, the workflow also builds, aligns and signs a release APK an
 
 - `GET ?action=list&token=...`
 - `GET ?action=done&id=...&value=1|0&token=...`
-- `POST` (`Content-Type: text/plain`) `ocr` and `save`
+- `POST` (`Content-Type: text/plain`) `save`
 
 `CapacitorHttp` is enabled in `capacitor.config.ts`, so requests go through native HTTP: no CORS, and the Apps Script 302 redirect is followed.
 
@@ -91,3 +93,9 @@ npm run dev      # browser preview (camera and native HTTP only work on the phon
 - NOW card = the first slot not yet done, in rack order.
 - Tap a slot for the Copy / Mark done / Undo done sheet. Long-press copies straight away.
 - Fonts: JetBrains Mono (SIL OFL, see `src/assets/fonts/JetBrainsMono-OFL.txt`).
+
+## On-device OCR (how it is wired)
+
+- `resources/native/MlkitOcrPlugin.java` is a small Capacitor plugin around ML Kit. `scripts/patch-android.mjs` copies it into `android/`, registers it in `MainActivity.java` and adds `com.google.mlkit:text-recognition` to `android/app/build.gradle` on every build.
+- `src/ocr.ts` calls the plugin, `src/parse.ts` turns the text into PT numbers and the rack number (same rules as the old Apps Script parser, with unit tests).
+- Tips for good reads: hold the phone straight at the screen, fill the frame, avoid glare. You can always fix the numbers before saving.

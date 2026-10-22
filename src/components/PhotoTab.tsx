@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Camera, CameraDirection, CameraResultType, CameraSource } from '@capacitor/camera';
 import { api } from '../api';
 import { downscaleToJpegBase64 } from '../image';
+import { recognizeText } from '../ocr';
+import { parseOcrText } from '../parse';
 import { parseIdText } from '../ids';
 import type { SaveResult } from '../types';
 import { CameraIcon, ImageIcon } from './Icons';
@@ -57,8 +59,9 @@ export function PhotoTab({ onSaved }: Props) {
     }
     setPhase('reading');
     try {
-      const base64 = await downscaleToJpegBase64(webPath);
-      const r = await api.ocr(base64);
+      // Bigger than the 1800 px default: small screen text reads better at higher resolution.
+      const base64 = await downscaleToJpegBase64(webPath, 2400, 0.9);
+      const r = parseOcrText(await recognizeText(base64));
       setRack(r.rack ? String(r.rack) : '');
       setIdsText(r.ids.join('\n'));
       setNoPt(r.ids.length === 0);

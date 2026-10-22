@@ -65,3 +65,20 @@ if (fs.existsSync(splash) && fs.existsSync(res)) {
   }
   console.log('Splash replaced.');
 }
+
+// ---- On-device OCR (Google ML Kit, bundled model) ----
+const javaDir = path.join(androidDir, 'app/src/main/java/com/pathhelp/paperless');
+const nativeSrc = path.join(root, 'resources/native');
+if (fs.existsSync(nativeSrc) && fs.existsSync(javaDir)) {
+  for (const f of ['MlkitOcrPlugin.java', 'MainActivity.java']) {
+    fs.copyFileSync(path.join(nativeSrc, f), path.join(javaDir, f));
+  }
+  console.log('Native OCR plugin installed.');
+} else {
+  console.warn('Could not install native OCR plugin (missing folder):', javaDir);
+}
+
+edit(path.join(androidDir, 'app/build.gradle'), (x) => {
+  if (x.includes('com.google.mlkit:text-recognition')) return x;
+  return x.replace(/\ndependencies\s*\{/, "\ndependencies {\n    implementation 'com.google.mlkit:text-recognition:16.0.1'");
+});
