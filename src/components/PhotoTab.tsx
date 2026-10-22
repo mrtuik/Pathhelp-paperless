@@ -6,7 +6,7 @@ import { downscaleToJpegBase64, thumbDataUrl } from '../image';
 import { parseIdList } from '../ids';
 import { recognizeText } from '../ocr';
 import { parseOcrText } from '../parse';
-import { loadChat, onlyToday, saveChat } from '../storage';
+import { loadChat, loadForceNewLot, onlyToday, saveChat, setForceNewLot } from '../storage';
 import type { ChatAssistantMsg, ChatMsg, Draft, SaveResult } from '../types';
 import { CameraView } from './CameraView';
 import { AlertIcon, ArrowUpIcon, CameraIcon, GalleryIcon, PlusIcon, RefreshIcon, XIcon } from './Icons';
@@ -17,6 +17,8 @@ type Sheet = 'camera' | 'review' | null;
 
 interface Props {
   onSaved: (result: SaveResult) => void;
+  /** Changes when the user taps "Reset lots": the chat is cleared too. */
+  resetAt: number;
 }
 
 const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
@@ -79,7 +81,7 @@ function AssistantMessage({ msg, lotRacks, onRetry }: { msg: ChatAssistantMsg; l
   );
 }
 
-export function PhotoTab({ onSaved }: Props) {
+export function PhotoTab({ onSaved, resetAt }: Props) {
   const [messages, setMessages] = useState<ChatMsg[]>(() => loadChat());
   const [draft, setDraft] = useState<Draft | null>(null);
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -99,6 +101,10 @@ export function PhotoTab({ onSaved }: Props) {
     const t = window.setInterval(() => setMessages((all) => (onlyToday(all).length === all.length ? all : onlyToday(all))), 60_000);
     return () => window.clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    setMessages((all) => onlyToday(all));
+  }, [resetAt]);
 
   const patch = (p: Partial<Draft>) => setDraft((d) => (d ? { ...d, ...p } : d));
 
@@ -197,12 +203,13 @@ export function PhotoTab({ onSaved }: Props) {
     }
     const stamp = Date.now();
     const assistantId = `a${stamp}`;
+    const newLot = draft.newLot || loadForceNewLot(); // first photo after "Reset lots" starts a new Lot
+    if (newLot) setForceNewLot(false);
     setMessages((all) => [
       ...all,
       { id: `u${stamp}`, role: 'user', thumb: draft.thumb, rack, count: valid.length },
-      { id: assistantId, role: 'assistant', status: 'pending', rack, ids: valid, newLot: draft.newLot },
+      { id: assistantId, role: 'assistant', status: 'pending', rack, ids: valid, newLot },
     ]);
-    const newLot = draft.newLot;
     setDraft(null);
     setSheet(null);
     void send(assistantId, rack, valid, newLot);

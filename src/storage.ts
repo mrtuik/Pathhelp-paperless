@@ -26,7 +26,7 @@ const CHAT_MAX = 40;
 
 /** Message ids are `u<ms>` / `a<ms>`: keep only today's messages (the list resets every day). */
 export function onlyToday(messages: ChatMsg[], now: number = Date.now()): ChatMsg[] {
-  const from = startOfDay(now);
+  const from = Math.max(startOfDay(now), loadResetAt());
   return messages.filter((m) => Number(m.id.slice(1)) >= from);
 }
 
@@ -56,5 +56,40 @@ export function saveChat(messages: ChatMsg[]): void {
     } catch {
       /* too big: try again with fewer photos */
     }
+  }
+}
+
+/** Manual "Reset lots": everything older than this moment is hidden (nothing is deleted from the sheet). */
+const RESET_KEY = 'pathhelp.resetAt.v1';
+export function loadResetAt(): number {
+  try {
+    return Number(localStorage.getItem(RESET_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+}
+export function saveResetAt(ms: number): void {
+  try {
+    localStorage.setItem(RESET_KEY, String(ms));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** After a reset the next rack photo must start a fresh Lot (otherwise it could join a hidden one). */
+const FORCE_KEY = 'pathhelp.forceNewLot.v1';
+export function loadForceNewLot(): boolean {
+  try {
+    return localStorage.getItem(FORCE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+export function setForceNewLot(on: boolean): void {
+  try {
+    if (on) localStorage.setItem(FORCE_KEY, '1');
+    else localStorage.removeItem(FORCE_KEY);
+  } catch {
+    /* ignore */
   }
 }

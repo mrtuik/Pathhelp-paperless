@@ -6,4 +6,6 @@ export const PLACEHOLDER_TOKEN = 'PASTE_TOKEN_HERE';
 export const isTokenMissing = (): boolean => !TOKEN || TOKEN === PLACEHOLDER_TOKEN;
 
 /** Name shown in the header profile chip. Change it here. */
-export const PROFILE_NAME = 'Metuik';
+export const PROFILE_NAME = 'Mr. Tuik';
+/** GitHub username: its public photo is shown in the header and the profile sheet. */
+export const GITHUB_USER = 'mrtuik';

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import { startOfDay, todaysLots, withDone } from './lots';
-import { loadCachedLots, saveCachedLots } from './storage';
+import { loadCachedLots, loadResetAt, saveCachedLots, saveResetAt, setForceNewLot } from './storage';
 import type { Lot } from './types';
 
 export function useLots() {
@@ -10,6 +10,7 @@ export function useLots() {
   const [error, setError] = useState<string | null>(null);
   const lotsRef = useRef<Lot[]>(lots);
   const busyRef = useRef(false);
+  const [resetAt, setResetAt] = useState(() => loadResetAt());
   const [dayStart, setDayStart] = useState(() => startOfDay(Date.now()));
 
   const apply = useCallback((next: Lot[]) => {
@@ -71,6 +72,14 @@ export function useLots() {
     [apply, refresh],
   );
 
-  const today = todaysLots(lots, dayStart + 1);
-  return { lots: today, loading, error, refresh, setDone, dayStart };
+  /** Manual reset: hide every current lot (and clear the chat); the next photo starts a new Lot. */
+  const resetLots = useCallback(() => {
+    const now = Date.now();
+    saveResetAt(now);
+    setForceNewLot(true);
+    setResetAt(now);
+  }, []);
+
+  const today = todaysLots(lots, dayStart + 1, resetAt);
+  return { lots: today, loading, error, refresh, setDone, resetAt, resetLots };
 }

@@ -4,7 +4,9 @@ import { ListTab } from './components/ListTab';
 import { ListIcon, CoffeeIcon } from './components/Icons';
 import logoUrl from './assets/logo.png';
 import { PhotoTab } from './components/PhotoTab';
-import { isTokenMissing, PROFILE_NAME } from './config';
+import { isTokenMissing } from './config';
+import { Avatar } from './components/Avatar';
+import { ProfileSheet } from './components/ProfileSheet';
 import type { SaveResult } from './types';
 import { useLots } from './useLots';
 
@@ -26,7 +28,8 @@ function Main() {
   const [selectedLotId, setSelectedLotId] = useState<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
-  const { lots, loading, error, refresh, setDone } = useLots();
+  const { lots, loading, error, refresh, setDone, resetAt, resetLots } = useLots();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const notify = useCallback((message: string) => {
     setToast(message);
@@ -44,18 +47,18 @@ function Main() {
   return (
     <div className="app">
       <header className="header">
-        <img className="logo" src={logoUrl} alt="" aria-hidden="true" />
-        <span className="brand-name">Paperless entry</span>
-        <span className="profile" title={PROFILE_NAME}>
-          <span className="profile-name">{PROFILE_NAME}</span>
-          <span className="avatar" aria-hidden="true">
-            {PROFILE_NAME.trim().charAt(0).toUpperCase()}
-          </span>
-        </span>
+        <span className="hdr-side" aria-hidden="true" />
+        <div className="hdr-center">
+          <img className="logo" src={logoUrl} alt="" aria-hidden="true" />
+          <span className="brand-name">Paperless entry</span>
+        </div>
+        <button type="button" className="hdr-btn" aria-label="Profile" onClick={() => setProfileOpen(true)}>
+          <Avatar size={44} />
+        </button>
       </header>
       <main className="main">
         <div className="pane" hidden={tab !== 'photo'}>
-          <PhotoTab onSaved={onSaved} />
+          <PhotoTab onSaved={onSaved} resetAt={resetAt} />
         </div>
         <div className="pane" hidden={tab !== 'list'}>
           <ListTab
@@ -71,6 +74,7 @@ function Main() {
         </div>
       </main>
       {toast && <div className="toast">{toast}</div>}
+      <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} onReset={() => { resetLots(); notify('Lots reset'); }} />
       <div className="navroot">
         <nav className="bnav" style={{ '--i': tab === 'photo' ? 0 : 1 } as CSSProperties}>
           <span className="ind" aria-hidden="true" />

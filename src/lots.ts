@@ -54,8 +54,8 @@ export function startOfDay(now: number): number {
   return d.getTime();
 }
 
-/** Only today's lots: samples are different every day, so yesterday's list is dropped at midnight. */
-export function todaysLots(lots: Lot[], now: number): Lot[] {
-  const from = startOfDay(now);
+/** Only lots from today, and from after a manual "Reset lots" (`resetAt`, ms). */
+export function todaysLots(lots: Lot[], now: number, resetAt = 0): Lot[] {
+  const from = Math.max(startOfDay(now), resetAt);
   return lots.filter((l) => l.start >= from);
 }
