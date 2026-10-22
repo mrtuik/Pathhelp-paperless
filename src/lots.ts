@@ -46,3 +46,16 @@ export function withDone(lots: Lot[], lotId: number, id: string, done: boolean):
       : { ...l, racks: l.racks.map((r) => ({ ...r, items: r.items.map((i) => (i.id === id ? { ...i, done } : i)) })) },
   );
 }
+
+/** Local midnight (ms) of the day that contains `now`. */
+export function startOfDay(now: number): number {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+/** Only today's lots: samples are different every day, so yesterday's list is dropped at midnight. */
+export function todaysLots(lots: Lot[], now: number): Lot[] {
+  const from = startOfDay(now);
+  return lots.filter((l) => l.start >= from);
+}

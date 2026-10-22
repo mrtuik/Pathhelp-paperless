@@ -4,3 +4,6 @@ export const TOKEN: string = '5ac2739777e8';
 
 export const PLACEHOLDER_TOKEN = 'PASTE_TOKEN_HERE';
 export const isTokenMissing = (): boolean => !TOKEN || TOKEN === PLACEHOLDER_TOKEN;
+
+/** Name shown in the header profile chip. Change it here. */
+export const PROFILE_NAME = 'Metuik';

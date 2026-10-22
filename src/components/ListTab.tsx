@@ -1,12 +1,11 @@
-import { useRef, useState } from 'react';
-import type { TouchEvent } from 'react';
+import { useState } from 'react';
 import { lotTotals, nextPending, orderLots, rackTotals } from '../lots';
 import type { Item, Lot } from '../types';
 import { api } from '../api';
 import { plural } from '../chat';
 import { copyText, tick } from '../native';
 import { BottomSheet } from './BottomSheet';
-import { CheckIcon, CopyIcon, MoreIcon, RefreshIcon, UndoIcon } from './Icons';
+import { CheckIcon, CopyIcon, MoreIcon, UndoIcon } from './Icons';
 import { DeleteSheet, EditLotSheet, EditRackSheet, ManageMenu } from './ManageSheets';
 import { SegmentedControl } from './SegmentedControl';
 import { Slot } from './Slot';
@@ -21,8 +20,6 @@ interface Props {
   onSelectLot: (id: number) => void;
   notify: (message: string) => void;
 }
-
-const PULL_TRIGGER = 56;
 
 /** What is being managed: the whole lot, or one rack (by number), and which step is open. */
 interface Manage {
@@ -42,25 +39,6 @@ export function ListTab({ lots, loading, error, refresh, setDone, selectedLotId,
   const [manage, setManage] = useState<Manage | null>(null);
   const [busy, setBusy] = useState(false);
   const [manageError, setManageError] = useState<string | null>(null);
-
-  // pull to refresh
-  const scroller = useRef<HTMLDivElement>(null);
-  const startY = useRef<number | null>(null);
-  const [pull, setPull] = useState(0);
-
-  const onTouchStart = (e: TouchEvent) => {
-    startY.current = (scroller.current?.scrollTop ?? 1) <= 0 ? e.touches[0]!.clientY : null;
-  };
-  const onTouchMove = (e: TouchEvent) => {
-    if (startY.current === null) return;
-    const dy = e.touches[0]!.clientY - startY.current;
-    setPull(dy > 0 ? Math.min(dy * 0.5, 80) : 0);
-  };
-  const onTouchEnd = () => {
-    if (pull >= PULL_TRIGGER && !loading) void refresh();
-    startY.current = null;
-    setPull(0);
-  };
 
   const copy = async (id: string) => {
     try {
@@ -113,21 +91,12 @@ export function ListTab({ lots, loading, error, refresh, setDone, selectedLotId,
     <div className="tab">
       <div className="topbar">
         <SegmentedControl segments={ordered.map((l) => ({ value: l.id, label: `Lot ${l.id}` }))} value={lot?.id ?? null} onChange={onSelectLot} />
-        <button type="button" className="icon-btn" aria-label="Lot options" onClick={() => openManage('lot')} disabled={!lot}>
+        <button type="button" className="icon-btn icon-btn-sm" aria-label="Lot options" onClick={() => openManage('lot')} disabled={!lot}>
           <MoreIcon />
-        </button>
-        <button type="button" className="icon-btn" aria-label="Refresh" onClick={() => void refresh()} disabled={loading}>
-          <span className={loading ? 'spin' : undefined}>
-            <RefreshIcon />
-          </span>
         </button>
       </div>
 
-      <div ref={scroller} className="scroll" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-        <div className="ptr" style={{ height: loading ? 36 : pull }}>
-          {(loading || pull > 0) && <span className="muted small">{loading ? 'Refreshing…' : pull >= PULL_TRIGGER ? 'Release to refresh' : 'Pull to refresh'}</span>}
-        </div>
-
+      <div className="scroll">
         {error && <div className="banner banner-error">{error}</div>}
 
         {!lot ? (

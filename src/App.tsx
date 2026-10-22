@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { ListTab } from './components/ListTab';
-import { ListIcon, CameraIcon } from './components/Icons';
+import { ListIcon, CoffeeIcon } from './components/Icons';
+import logoUrl from './assets/logo.png';
 import { PhotoTab } from './components/PhotoTab';
-import { isTokenMissing } from './config';
+import { isTokenMissing, PROFILE_NAME } from './config';
 import type { SaveResult } from './types';
 import { useLots } from './useLots';
 
@@ -43,10 +44,14 @@ function Main() {
   return (
     <div className="app">
       <header className="header">
-        <span className="logo" aria-hidden="true">
-          <span className="logo-glyph" />
-        </span>
+        <img className="logo" src={logoUrl} alt="" aria-hidden="true" />
         <span className="brand-name">Paperless entry</span>
+        <span className="profile" title={PROFILE_NAME}>
+          <span className="profile-name">{PROFILE_NAME}</span>
+          <span className="avatar" aria-hidden="true">
+            {PROFILE_NAME.trim().charAt(0).toUpperCase()}
+          </span>
+        </span>
       </header>
       <main className="main">
         <div className="pane" hidden={tab !== 'photo'}>
@@ -56,8 +61,8 @@ function Main() {
           <ListTab
             lots={lots}
             loading={loading}
-            error={error}
             refresh={() => refresh()}
+            error={error}
             setDone={setDone}
             selectedLotId={selectedLotId}
             onSelectLot={setSelectedLotId}
@@ -70,12 +75,15 @@ function Main() {
         <nav className="bnav" style={{ '--i': tab === 'photo' ? 0 : 1 } as CSSProperties}>
           <span className="ind" aria-hidden="true" />
           <button type="button" aria-label="Photo" className={tab === 'photo' ? 'on' : ''} onClick={() => setTab('photo')}>
-            <CameraIcon size={22} />
+            <CoffeeIcon size={22} />
           </button>
           <button type="button" aria-label="List" className={tab === 'list' ? 'on' : ''} onClick={() => setTab('list')}>
             <ListIcon size={28} />
           </button>
         </nav>
+        <span className={`refresh-note${loading ? ' on' : ''}`} role="status" aria-live="polite">
+          {loading ? 'Refreshing…' : ''}
+        </span>
       </div>
     </div>
   );

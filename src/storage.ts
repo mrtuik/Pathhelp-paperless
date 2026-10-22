@@ -1,4 +1,5 @@
 import type { ChatMsg, Lot } from './types';
+import { startOfDay } from './lots';
 
 const KEY = 'pathhelp.lots.v1';
 
@@ -23,13 +24,19 @@ export function saveCachedLots(lots: Lot[]): void {
 const CHAT_KEY = 'pathhelp.chat.v1';
 const CHAT_MAX = 40;
 
+/** Message ids are `u<ms>` / `a<ms>`: keep only today's messages (the list resets every day). */
+export function onlyToday(messages: ChatMsg[], now: number = Date.now()): ChatMsg[] {
+  const from = startOfDay(now);
+  return messages.filter((m) => Number(m.id.slice(1)) >= from);
+}
+
 export function loadChat(): ChatMsg[] {
   try {
     const raw = localStorage.getItem(CHAT_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(parsed)) return [];
     // A message that was still sending when the app closed is shown as not sent (with Retry).
-    return (parsed as ChatMsg[]).map((m) =>
+    return onlyToday(parsed as ChatMsg[]).map((m) =>
       m.role === 'assistant' && m.status === 'pending' ? { ...m, status: 'error' as const, error: 'Not sent. Tap Retry.' } : m,
     );
   } catch {

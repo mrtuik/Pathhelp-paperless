@@ -6,7 +6,7 @@ import { downscaleToJpegBase64, thumbDataUrl } from '../image';
 import { parseIdList } from '../ids';
 import { recognizeText } from '../ocr';
 import { parseOcrText } from '../parse';
-import { loadChat, saveChat } from '../storage';
+import { loadChat, onlyToday, saveChat } from '../storage';
 import type { ChatAssistantMsg, ChatMsg, Draft, SaveResult } from '../types';
 import { CameraView } from './CameraView';
 import { AlertIcon, ArrowUpIcon, CameraIcon, GalleryIcon, PlusIcon, RefreshIcon, XIcon } from './Icons';
@@ -93,6 +93,12 @@ export function PhotoTab({ onSaved }: Props) {
     saveChat(messages);
     endRef.current?.scrollIntoView({ block: 'end' });
   }, [messages]);
+
+  // New day: yesterday's messages are cleared automatically.
+  useEffect(() => {
+    const t = window.setInterval(() => setMessages((all) => (onlyToday(all).length === all.length ? all : onlyToday(all))), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
 
   const patch = (p: Partial<Draft>) => setDraft((d) => (d ? { ...d, ...p } : d));
 
