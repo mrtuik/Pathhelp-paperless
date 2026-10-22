@@ -77,6 +77,18 @@ export function createApi(opts: ApiOptions = {}) {
       const r = await post<Base & Partial<OcrResult>>({ action: 'ocr', image: imageBase64, mime: 'image/jpeg' });
       return { rack: r.rack ?? null, ids: Array.isArray(r.ids) ? r.ids : [], raw: r.raw ?? '' };
     },
+    async editRack(lot: number, rack: number, newRack: number, ids: string[]): Promise<void> {
+      await post<Base>({ action: 'editRack', lot, rack, newRack, ids });
+    },
+    async deleteRack(lot: number, rack: number): Promise<void> {
+      await post<Base>({ action: 'deleteRack', lot, rack });
+    },
+    async editLot(lot: number, newLot: number): Promise<void> {
+      await post<Base>({ action: 'editLot', lot, newLot });
+    },
+    async deleteLot(lot: number): Promise<void> {
+      await post<Base>({ action: 'deleteLot', lot });
+    },
     async save(rack: number, ids: string[], newLot: boolean): Promise<SaveResult> {
       const r = await post<Base & Partial<SaveResult>>({ action: 'save', rack, ids, newLot });
       return {

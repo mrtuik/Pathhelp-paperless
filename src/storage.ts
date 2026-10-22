@@ -38,9 +38,16 @@ export function loadChat(): ChatMsg[] {
 }
 
 export function saveChat(messages: ChatMsg[]): void {
-  try {
-    localStorage.setItem(CHAT_KEY, JSON.stringify(messages.slice(-CHAT_MAX)));
-  } catch {
-    /* storage full or unavailable: ignore */
+  const recent = messages.slice(-CHAT_MAX);
+  // Photos are the big part. If storage is full, keep fewer photos (newest first), then none.
+  for (const keepPhotos of [CHAT_MAX, 8, 3, 0]) {
+    const cut = recent.length - keepPhotos;
+    const data = recent.map((m, i) => (m.role === 'user' && i < cut ? { ...m, thumb: '' } : m));
+    try {
+      localStorage.setItem(CHAT_KEY, JSON.stringify(data));
+      return;
+    } catch {
+      /* too big: try again with fewer photos */
+    }
   }
 }

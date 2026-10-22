@@ -60,4 +60,18 @@ describe('api client', () => {
     });
     await expect(createApi({ ...base, fetchFn: f }).list()).rejects.toThrow('Network error: offline');
   });
+
+  it('edit and delete actions post the right payloads', async () => {
+    const f = mockFetch({ ok: true });
+    const api = createApi({ ...base, fetchFn: f });
+    await api.editRack(3, 4, 5, ['261022PT150']);
+    await api.deleteRack(3, 5);
+    await api.editLot(3, 7);
+    await api.deleteLot(7);
+    const bodies = f.mock.calls.map((c) => JSON.parse(String(c[1]!.body)));
+    expect(bodies[0]).toEqual({ token: 'tok', action: 'editRack', lot: 3, rack: 4, newRack: 5, ids: ['261022PT150'] });
+    expect(bodies[1]).toEqual({ token: 'tok', action: 'deleteRack', lot: 3, rack: 5 });
+    expect(bodies[2]).toEqual({ token: 'tok', action: 'editLot', lot: 3, newLot: 7 });
+    expect(bodies[3]).toEqual({ token: 'tok', action: 'deleteLot', lot: 7 });
+  });
 });

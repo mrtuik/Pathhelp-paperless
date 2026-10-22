@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { ListTab } from './components/ListTab';
 import { ListIcon, CameraIcon } from './components/Icons';
 import { PhotoTab } from './components/PhotoTab';
@@ -41,7 +42,12 @@ function Main() {
 
   return (
     <div className="app">
-      <header className="header">Paperless entry</header>
+      <header className="header">
+        <span className="logo" aria-hidden="true">
+          <span className="logo-glyph" />
+        </span>
+        <span className="brand-name">Paperless entry</span>
+      </header>
       <main className="main">
         <div className="pane" hidden={tab !== 'photo'}>
           <PhotoTab onSaved={onSaved} />
@@ -60,20 +66,17 @@ function Main() {
         </div>
       </main>
       {toast && <div className="toast">{toast}</div>}
-      <nav className="tabbar">
-        <button type="button" className={`tabbtn${tab === 'photo' ? ' tabbtn-active' : ''}`} onClick={() => setTab('photo')}>
-          <span className="tabicon">
+      <div className="navroot">
+        <nav className="bnav" style={{ '--i': tab === 'photo' ? 0 : 1 } as CSSProperties}>
+          <span className="ind" aria-hidden="true" />
+          <button type="button" aria-label="Photo" className={tab === 'photo' ? 'on' : ''} onClick={() => setTab('photo')}>
             <CameraIcon size={22} />
-          </span>
-          <span>Photo</span>
-        </button>
-        <button type="button" className={`tabbtn${tab === 'list' ? ' tabbtn-active' : ''}`} onClick={() => setTab('list')}>
-          <span className="tabicon">
-            <ListIcon size={26} />
-          </span>
-          <span>List</span>
-        </button>
-      </nav>
+          </button>
+          <button type="button" aria-label="List" className={tab === 'list' ? 'on' : ''} onClick={() => setTab('list')}>
+            <ListIcon size={28} />
+          </button>
+        </nav>
+      </div>
     </div>
   );
 }

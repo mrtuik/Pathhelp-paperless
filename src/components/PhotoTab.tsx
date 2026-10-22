@@ -3,13 +3,14 @@ import { Camera, CameraDirection, CameraResultType, CameraSource } from '@capaci
 import { api } from '../api';
 import { plural, racksInLot } from '../chat';
 import { downscaleToJpegBase64, thumbDataUrl } from '../image';
-import { parseIdText } from '../ids';
+import { parseIdList } from '../ids';
 import { recognizeText } from '../ocr';
 import { parseOcrText } from '../parse';
 import { loadChat, saveChat } from '../storage';
 import type { ChatAssistantMsg, ChatMsg, Draft, SaveResult } from '../types';
 import { CameraView } from './CameraView';
 import { AlertIcon, ArrowUpIcon, CameraIcon, GalleryIcon, PlusIcon, RefreshIcon, XIcon } from './Icons';
+import { PhotoViewer } from './PhotoViewer';
 import { ReviewSheet } from './ReviewSheet';
 
 type Sheet = 'camera' | 'review' | null;
@@ -84,6 +85,7 @@ export function PhotoTab({ onSaved }: Props) {
   const [sheet, setSheet] = useState<Sheet>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<string | null>(null);
   const keyRef = useRef(0);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -99,16 +101,16 @@ export function PhotoTab({ onSaved }: Props) {
     const key = ++keyRef.current;
     let thumb = '';
     try {
-      thumb = await thumbDataUrl(base64);
+      thumb = await thumbDataUrl(base64, 1000, 0.6);
     } catch {
       /* no preview: the sheet still works */
     }
-    setDraft({ key, thumb, rack: '', idsText: '', newLot: false, reading: true, noPt: false, error: null });
+    setDraft({ key, thumb, rack: '', ids: [], newLot: false, reading: true, noPt: false, error: null });
     setSheet('review');
     try {
       const r = parseOcrText(await recognizeText(base64));
       setDraft((d) =>
-        d && d.key === key ? { ...d, rack: r.rack ? String(r.rack) : '', idsText: r.ids.join('\n'), noPt: r.ids.length === 0, reading: false } : d,
+        d && d.key === key ? { ...d, rack: r.rack ? String(r.rack) : '', ids: r.ids, noPt: r.ids.length === 0, reading: false } : d,
       );
     } catch (e) {
       setDraft((d) => (d && d.key === key ? { ...d, reading: false, noPt: true, error: errMsg(e) } : d));
@@ -178,7 +180,7 @@ export function PhotoTab({ onSaved }: Props) {
       patch({ error: 'Enter the rack number (1 or higher).' });
       return;
     }
-    const { valid, invalid } = parseIdText(draft.idsText);
+    const { valid, invalid } = parseIdList(draft.ids);
     if (invalid.length) {
       patch({ error: `These do not look like PT numbers: ${invalid.join(', ')}. Format: 261022PT150` });
       return;
@@ -205,7 +207,7 @@ export function PhotoTab({ onSaved }: Props) {
     setSheet(null);
   };
 
-  const draftCount = useMemo(() => (draft ? parseIdText(draft.idsText).valid.length : 0), [draft]);
+  const draftCount = useMemo(() => (draft ? parseIdList(draft.ids).valid.length : 0), [draft]);
 
   return (
     <div className="tab">
@@ -220,7 +222,11 @@ export function PhotoTab({ onSaved }: Props) {
           messages.map((m) =>
             m.role === 'user' ? (
               <div key={m.id} className="msg msg-user">
-                {m.thumb && <img className="user-photo" src={m.thumb} alt={`Rack ${m.rack} photo`} />}
+                {m.thumb && (
+                  <button type="button" className="thumb-btn" aria-label={`Preview rack ${m.rack} photo`} onClick={() => setViewer(m.thumb)}>
+                    <img className="user-photo" src={m.thumb} alt={`Rack ${m.rack} photo`} />
+                  </button>
+                )}
                 <div className="user-bubble">
                   Rack {m.rack} · {plural(m.count, 'PT number')}
                 </div>
@@ -248,7 +254,11 @@ export function PhotoTab({ onSaved }: Props) {
 
         {draft && sheet === null && (
           <div className="attach">
-            {draft.thumb && <img src={draft.thumb} alt="" />}
+            {draft.thumb && (
+              <button type="button" className="thumb-btn" aria-label="Preview photo" onClick={() => setViewer(draft.thumb)}>
+                <img src={draft.thumb} alt="" />
+              </button>
+            )}
             <button type="button" className="attach-text" onClick={() => setSheet('review')}>
               <strong>{draft.rack ? `Rack ${draft.rack}` : 'Rack photo'}</strong>
               <span className="muted small">{draft.reading ? 'Reading…' : plural(draftCount, 'PT number')}</span>
@@ -299,7 +309,9 @@ export function PhotoTab({ onSaved }: Props) {
         />
       )}
 
-      {sheet === 'review' && draft && <ReviewSheet draft={draft} onChange={patch} onConfirm={confirm} onMinimize={() => setSheet(null)} onDiscard={discard} />}
+      {sheet === 'review' && draft && <ReviewSheet draft={draft} onChange={patch} onConfirm={confirm} onMinimize={() => setSheet(null)} onDiscard={discard} onPreview={() => setViewer(draft.thumb)} />}
+
+      {viewer && <PhotoViewer src={viewer} onClose={() => setViewer(null)} />}
     </div>
   );
 }

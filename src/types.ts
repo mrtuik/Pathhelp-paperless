@@ -29,7 +29,8 @@ export interface Draft {
   /** Small JPEG data URL used for previews. */
   thumb: string;
   rack: string;
-  idsText: string;
+  /** One entry per PT box (may contain blanks or typos until confirmed). */
+  ids: string[];
   newLot: boolean;
   reading: boolean;
   noPt: boolean;

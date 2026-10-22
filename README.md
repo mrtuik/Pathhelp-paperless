@@ -102,11 +102,17 @@ npm run dev      # browser preview (camera and native HTTP only work on the phon
 
 ## Look and flow (chat style)
 
-- Theme matches the Pathhelp extension: shadcn/ui zinc look, lucide-style icons, white tab bar, white status bar and black NOW card (white theme). Gallery and List icons are the supplied artwork.
+- Theme matches the Pathhelp extension: shadcn/ui zinc look, logo + name header, pill buttons, white icon-only bottom nav with a sliding black highlight, Plus Jakarta Sans (loads from Google Fonts when online, system font offline) and lucide-style icons. White theme only. The Gallery and List icons are the supplied artwork.
 - The Photo tab is a chat, like ChatGPT. Tap **+** in the message box and choose **Camera** or **Gallery**.
 - **Camera** opens as a half-screen sheet (live preview, shutter, close, torch). If the live camera cannot start, the app falls back to the phone's camera app.
-- After the photo is taken or picked, a bottom sheet shows the rack number and the PT numbers it read (tap Edit to fix them). **Confirm** sends them to the Google Sheet.
-- Closing the sheet keeps the photo attached above the message box; the arrow button reopens it. Discard removes it.
-- The reply in the chat says which rack was uploaded to which Lot, how many PT numbers were added or updated, lists the selected PT numbers, and shows the racks uploaded so far in that Lot. A failed upload shows Retry.
-- Chat history (last 40 messages, small photo previews) is kept on the phone.
+- After the photo is taken or picked, a bottom sheet shows the rack number and every PT number in its **own box** (edit, remove with x, or add). Tap the small photo to preview it full screen (tap again to zoom). **Confirm** sends them to the Google Sheet.
+- Closing the sheet keeps the photo attached above the message box (tap it to preview, x to remove); the arrow button reopens the sheet.
+- In the chat, tap any sent photo to preview it. The reply says which rack was uploaded to which Lot, how many PT numbers were added or updated, lists the selected PT numbers, and shows the racks uploaded so far in that Lot. A failed upload shows Retry.
+- Chat history (last 40 messages, photo previews for the newest ones) is kept on the phone.
 - App icon, splash and the empty-screen glyph come from `resources/paper-glyph.png`.
+
+## Edit and delete (List tab)
+
+- The ⋯ button next to refresh manages the **Lot**: Edit (change the lot number) or Delete (removes the whole lot from the sheet).
+- The ⋯ button on each **Rack** header: Edit (change the rack number, edit / remove / add PT numbers) or Delete (removes that rack).
+- These use four new Apps Script actions: `editRack`, `deleteRack`, `editLot`, `deleteLot`. **Update the script once:** open your Apps Script project, replace the code with `apps-script/Code.gs`, then **Deploy → Manage deployments → Edit → New version → Deploy**. Until then the app shows "The Google script is not updated yet".

@@ -39,3 +39,12 @@ describe('parseIdText', () => {
     expect(parseIdText('261022 PT150').valid).toEqual(['261022PT150']);
   });
 });
+
+describe('parseIdList (one PT per box)', () => {
+  it('cleans each box, drops blanks and duplicates, flags typos', async () => {
+    const { parseIdList } = await import('./ids');
+    const r = parseIdList(['261022pt150', ' ', '261022PT150', '2610PT1']);
+    expect(r.valid).toEqual(['261022PT150']);
+    expect(r.invalid).toEqual(['2610PT1']);
+  });
+});

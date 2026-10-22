@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { plural } from '../chat';
-import { parseIdText } from '../ids';
+import { parseIdList } from '../ids';
 import type { Draft } from '../types';
-import { AlertIcon, ArrowUpIcon, PencilIcon, XIcon } from './Icons';
+import { AlertIcon, ArrowUpIcon, XIcon } from './Icons';
+import { PtBoxes } from './PtBoxes';
 
 interface Props {
   draft: Draft;
@@ -12,14 +13,13 @@ interface Props {
   onMinimize: () => void;
   /** Throw the photo away. */
   onDiscard: () => void;
+  /** Open the photo full screen. */
+  onPreview: () => void;
 }
 
-/** Bottom sheet that shows the rack number and PT numbers read from the photo. Confirm sends them. */
-export function ReviewSheet({ draft, onChange, onConfirm, onMinimize, onDiscard }: Props) {
-  const [editing, setEditing] = useState(false);
-  const parsed = useMemo(() => parseIdText(draft.idsText), [draft.idsText]);
-  const total = parsed.valid.length + parsed.invalid.length;
-  const showEdit = editing || total === 0;
+/** Bottom sheet that shows the rack number and every PT number (one box each) read from the photo. Confirm sends them. */
+export function ReviewSheet({ draft, onChange, onConfirm, onMinimize, onDiscard, onPreview }: Props) {
+  const parsed = useMemo(() => parseIdList(draft.ids), [draft.ids]);
 
   return (
     <div className="sheet-backdrop" onClick={onMinimize}>
@@ -33,7 +33,11 @@ export function ReviewSheet({ draft, onChange, onConfirm, onMinimize, onDiscard 
 
         <div className="review-body">
           <div className="review-top">
-            {draft.thumb && <img className="review-thumb" src={draft.thumb} alt="Rack photo" />}
+            {draft.thumb && (
+              <button type="button" className="thumb-btn" aria-label="Preview photo" onClick={onPreview}>
+                <img className="review-thumb" src={draft.thumb} alt="Rack photo" />
+              </button>
+            )}
             <label className="field review-rack">
               <span className="field-label">Rack number</span>
               <input
@@ -64,50 +68,12 @@ export function ReviewSheet({ draft, onChange, onConfirm, onMinimize, onDiscard 
             <>
               <div className="ids-head">
                 <span className="field-label">
-                  {total === 0 ? 'No PT numbers found' : plural(parsed.valid.length, 'PT number')}
+                  {parsed.valid.length === 0 ? 'No PT numbers' : plural(parsed.valid.length, 'PT number')}
                   {parsed.invalid.length > 0 && ` · ${parsed.invalid.length} not valid`}
                 </span>
-                {total > 0 && (
-                  <button type="button" className="link-btn" onClick={() => setEditing((e) => !e)}>
-                    {showEdit ? (
-                      'Done'
-                    ) : (
-                      <>
-                        <PencilIcon size={14} /> Edit
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
-              {draft.noPt && total === 0 && <div className="banner banner-warn">No PT numbers were found. Retake the photo, or type them below.</div>}
-              {showEdit ? (
-                <textarea
-                  className="input mono textarea"
-                  rows={7}
-                  placeholder="One PT number per line, e.g. 261022PT150"
-                  value={draft.idsText}
-                  onChange={(e) => {
-                    if (!editing) setEditing(true);
-                    onChange({ idsText: e.target.value.toUpperCase(), noPt: false, error: null });
-                  }}
-                  autoCapitalize="characters"
-                  autoCorrect="off"
-                  spellCheck={false}
-                />
-              ) : (
-                <div className="chips">
-                  {parsed.valid.map((id) => (
-                    <span key={id} className="chip mono">
-                      {id}
-                    </span>
-                  ))}
-                  {parsed.invalid.map((id) => (
-                    <span key={id} className="chip chip-bad mono">
-                      {id}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {draft.noPt && draft.ids.length === 0 && <div className="banner banner-warn">No PT numbers were found. Retake the photo, or add them below.</div>}
+              <PtBoxes ids={draft.ids} onChange={(ids) => onChange({ ids, noPt: false, error: null })} />
             </>
           )}
 

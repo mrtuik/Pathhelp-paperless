@@ -37,3 +37,8 @@ export function parseIdText(text: string): ParsedIds {
   }
   return { valid, invalid };
 }
+
+/** Same as parseIdText, for the list of PT boxes. */
+export function parseIdList(list: string[]): ParsedIds {
+  return parseIdText(list.join('\n'));
+}
