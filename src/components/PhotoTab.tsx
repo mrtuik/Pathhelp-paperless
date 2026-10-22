@@ -8,6 +8,7 @@ import { recognizeText } from '../ocr';
 import { parseOcrText } from '../parse';
 import { loadChat, loadForceNewLot, onlyToday, saveChat, setForceNewLot } from '../storage';
 import type { ChatAssistantMsg, ChatMsg, Draft, SaveResult } from '../types';
+import logoUrl from '../assets/logo.png';
 import { CameraView } from './CameraView';
 import { AlertIcon, ArrowUpIcon, CameraIcon, GalleryIcon, PlusIcon, RefreshIcon, XIcon } from './Icons';
 import { PhotoViewer } from './PhotoViewer';
@@ -38,9 +39,7 @@ function Chips({ ids }: { ids: string[] }) {
 function AssistantMessage({ msg, lotRacks, onRetry }: { msg: ChatAssistantMsg; lotRacks: number[]; onRetry: () => void }) {
   return (
     <div className="msg msg-ai">
-      <div className="ai-avatar" aria-hidden="true">
-        <span className="ai-glyph" />
-      </div>
+      <img className="ai-avatar" src={logoUrl} alt="" aria-hidden="true" />
       <div className="ai-body">
         {msg.status === 'pending' && (
           <div className="dots" aria-label="Uploading">

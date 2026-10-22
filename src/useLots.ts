@@ -10,6 +10,7 @@ export function useLots() {
   const [error, setError] = useState<string | null>(null);
   const lotsRef = useRef<Lot[]>(lots);
   const busyRef = useRef(false);
+  const archivedFor = useRef(0);
   const [resetAt, setResetAt] = useState(() => loadResetAt());
   const [dayStart, setDayStart] = useState(() => startOfDay(Date.now()));
 
@@ -25,7 +26,19 @@ export function useLots() {
       busyRef.current = true;
       if (!silent) setLoading(true);
       try {
-        apply(await api.list());
+        let next = await api.list();
+        // New day: yesterday's rows move to the Archive tab (once per day) so Lots start again from 1.
+        const cutoff = startOfDay(Date.now());
+        if (archivedFor.current !== cutoff && next.some((l) => l.start < cutoff)) {
+          archivedFor.current = cutoff;
+          try {
+            await api.archive(cutoff);
+            next = await api.list();
+          } catch {
+            /* old script without the archive action: the list is still hidden on this phone */
+          }
+        }
+        apply(next);
         setError(null);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -72,13 +85,21 @@ export function useLots() {
     [apply, refresh],
   );
 
-  /** Manual reset: hide every current lot (and clear the chat); the next photo starts a new Lot. */
-  const resetLots = useCallback(() => {
+  /** Manual reset. Returns true when the sheet was reset too (Lots start again from 1). */
+  const resetLots = useCallback(async (): Promise<boolean> => {
     const now = Date.now();
     saveResetAt(now);
-    setForceNewLot(true);
     setResetAt(now);
-  }, []);
+    apply([]);
+    try {
+      await api.archive(9e15); // everything saved so far goes to the Archive tab
+      setForceNewLot(false);
+      return true;
+    } catch {
+      setForceNewLot(true); // old script: at least the next photo starts a new Lot
+      return false;
+    }
+  }, [apply]);
 
   const today = todaysLots(lots, dayStart + 1, resetAt);
   return { lots: today, loading, error, refresh, setDone, resetAt, resetLots };

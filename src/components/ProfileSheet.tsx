@@ -7,7 +7,7 @@ import { TrashIcon } from './Icons';
 interface Props {
   open: boolean;
   onClose: () => void;
-  onReset: () => void;
+  onReset: () => Promise<void>;
 }
 
 /** Profile (GitHub photo + name) first, then the manual "Reset lots" option. */
@@ -28,12 +28,12 @@ export function ProfileSheet({ open, onClose, onReset }: Props) {
       </div>
       {confirming ? (
         <>
-          <p className="delete-text">This hides all current lots and clears the chat on this phone. Nothing is deleted from the Google Sheet.</p>
+          <p className="delete-text">This clears all current lots and the chat. The next upload starts from Lot 1. Old rows move to the Archive tab of the Google Sheet, nothing is deleted.</p>
           <button
             type="button"
             className="btn btn-danger"
             onClick={() => {
-              onReset();
+              void onReset();
               close();
             }}
           >

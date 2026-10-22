@@ -89,6 +89,11 @@ export function createApi(opts: ApiOptions = {}) {
     async deleteLot(lot: number): Promise<void> {
       await post<Base>({ action: 'deleteLot', lot });
     },
+    /** Moves every row saved before `before` (ms) to the sheet's Archive tab. */
+    async archive(before: number): Promise<number> {
+      const r = await post<Base & { moved?: number }>({ action: 'archive', before });
+      return r.moved ?? 0;
+    },
     async save(rack: number, ids: string[], newLot: boolean): Promise<SaveResult> {
       const r = await post<Base & Partial<SaveResult>>({ action: 'save', rack, ids, newLot });
       return {

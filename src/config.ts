@@ -9,3 +9,6 @@ export const isTokenMissing = (): boolean => !TOKEN || TOKEN === PLACEHOLDER_TOK
 export const PROFILE_NAME = 'Mr. Tuik';
 /** GitHub username: its public photo is shown in the header and the profile sheet. */
 export const GITHUB_USER = 'mrtuik';
+
+/** Hour of the day (0-23, phone time) when the list resets every day. 0 = midnight (12:00 AM). */
+export const RESET_HOUR = 0;

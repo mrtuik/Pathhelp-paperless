@@ -28,6 +28,9 @@ function doGet(e) {
   if (!check_(p.token)) return json_({ ok: false, error: 'bad token' });
   if (p.action === 'list') return json_({ ok: true, lots: lots_() });
   if (p.action === 'done') return json_(markDone_(String(p.id || ''), p.value !== '0'));
+  if (p.action === 'archive') {
+    try { return json_(Object.assign({ ok: true }, archiveBefore(p.token, Number(p.before)))); } catch (er) { return json_({ ok: false, error: String((er && er.message) || er) }); }
+  }
   return json_({ ok: false, error: 'unknown action' });
 }
 
@@ -40,6 +43,7 @@ function doGet(e) {
 //   { token, action: 'deleteRack', lot: 3, rack: 4 }                                    → { ok, removed }
 //   { token, action: 'editLot',    lot: 3, newLot: 7 }                                  → { ok, lot }
 //   { token, action: 'deleteLot',  lot: 3 }                                             → { ok, removed }
+//   { token, action: 'archive', before: <ms> }   moves every row saved before that time to the 'Archive' tab (daily / manual reset: Lots start again from 1) → { ok, moved }
 function doPost(e) {
   let b;
   try { b = JSON.parse(e.postData.contents); } catch (_) { return json_({ ok: false, error: 'bad json' }); }
@@ -53,6 +57,7 @@ function doPost(e) {
     if (b.action === 'deleteRack') return json_(Object.assign({ ok: true }, deleteRack(b.token, b.lot, b.rack)));
     if (b.action === 'editLot') return json_(Object.assign({ ok: true }, editLot(b.token, b.lot, b.newLot)));
     if (b.action === 'deleteLot') return json_(Object.assign({ ok: true }, deleteLot(b.token, b.lot)));
+    if (b.action === 'archive') return json_(Object.assign({ ok: true }, archiveBefore(b.token, Number(b.before))));
     return json_({ ok: false, error: 'unknown action' });
   } catch (er) { return json_({ ok: false, error: String((er && er.message) || er) }); }
 }
@@ -138,6 +143,27 @@ function lotsFrom_(rows) {
       })),
     };
   });
+}
+
+// ───────── reset: move old rows to the 'Archive' tab so Lot numbers start again from 1 (nothing is lost) ─────────
+function archiveBefore(token, before) {
+  if (!check_(token)) throw new Error('Wrong token');
+  if (!(before > 0)) throw new Error('Missing time');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const sh = getSheet_();
+    const rows = readRows_(sh).filter((r) => r.ts < before);
+    if (!rows.length) return { moved: 0 };
+    const ss = getSpreadsheet_();
+    let arch = ss.getSheetByName('Archive');
+    if (!arch) { arch = ss.insertSheet('Archive'); arch.appendRow(HEADERS.concat(['archivedAt'])); arch.setFrozenRows(1); }
+    const now = Date.now();
+    const vals = rows.map((r) => [r.ts, r.lot, r.rack, r.pos, r.id, r.done, now]);
+    arch.getRange(arch.getLastRow() + 1, 1, vals.length, HEADERS.length + 1).setValues(vals);
+    deleteRows_(sh, rows.map((r) => r.row));
+    return { moved: rows.length };
+  } finally { lock.releaseLock(); }
 }
 
 // ───────── edit / delete (Lot and Rack) ─────────

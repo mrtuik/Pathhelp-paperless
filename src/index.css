@@ -95,7 +95,7 @@ code {
 .header {
   flex: none;
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  grid-template-columns: 40px 1fr 44px;
   align-items: center;
   gap: 8px;
   padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
@@ -151,8 +151,8 @@ code {
 }
 .logo {
   flex: none;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
   display: block;
 }
@@ -793,18 +793,8 @@ code {
   flex: none;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ai-glyph {
-  width: 15px;
-  height: 15px;
-  background: var(--text);
-  -webkit-mask: url('./assets/paper.png') center / contain no-repeat;
-  mask: url('./assets/paper.png') center / contain no-repeat;
+  object-fit: cover;
+  display: block;
 }
 .ai-body {
   min-width: 0;
@@ -899,7 +889,7 @@ code {
   padding: 7px;
   background: var(--composer-bg);
   border: 1px solid var(--border);
-  border-radius: 28px;
+  border-radius: 3px;
   box-shadow: none;
 }
 .composer-text {
@@ -919,13 +909,13 @@ code {
   padding: 8px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 3px;
 }
 .attach img {
   width: 44px;
   height: 44px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 2px;
 }
 .attach-text {
   flex: 1;
@@ -954,7 +944,7 @@ code {
   padding: 6px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 3px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
   animation: slide-up 0.14s ease-out;
 }
@@ -967,7 +957,7 @@ code {
   padding: 0 12px;
   background: none;
   border: 0;
-  border-radius: 10px;
+  border-radius: 2px;
   color: var(--text);
   font-size: 16px;
   text-align: left;
@@ -1218,4 +1208,13 @@ code {
   color: rgba(255, 255, 255, 0.7);
   font-size: 13px;
   pointer-events: none;
+}
+
+/* photo input cards: square-ish corners, buttons inside follow */
+.composer .round-btn,
+.attach .round-btn {
+  border-radius: 3px;
+}
+.attach .thumb-btn {
+  border-radius: 2px;
 }

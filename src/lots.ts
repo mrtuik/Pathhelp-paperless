@@ -1,3 +1,4 @@
+import { RESET_HOUR } from './config';
 import type { Lot, RackData } from './types';
 
 export interface Totals {
@@ -47,10 +48,11 @@ export function withDone(lots: Lot[], lotId: number, id: string, done: boolean):
   );
 }
 
-/** Local midnight (ms) of the day that contains `now`. */
+/** Start (ms) of the current "day": today at RESET_HOUR, or yesterday's if that time has not come yet. */
 export function startOfDay(now: number): number {
   const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
+  d.setHours(RESET_HOUR, 0, 0, 0);
+  if (d.getTime() > now) d.setDate(d.getDate() - 1);
   return d.getTime();
 }
 

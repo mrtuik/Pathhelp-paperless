@@ -47,9 +47,8 @@ function Main() {
   return (
     <div className="app">
       <header className="header">
-        <span className="hdr-side" aria-hidden="true" />
+        <img className="logo" src={logoUrl} alt="" aria-hidden="true" />
         <div className="hdr-center">
-          <img className="logo" src={logoUrl} alt="" aria-hidden="true" />
           <span className="brand-name">Paperless entry</span>
         </div>
         <button type="button" className="hdr-btn" aria-label="Profile" onClick={() => setProfileOpen(true)}>
@@ -74,7 +73,10 @@ function Main() {
         </div>
       </main>
       {toast && <div className="toast">{toast}</div>}
-      <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} onReset={() => { resetLots(); notify('Lots reset'); }} />
+      <ProfileSheet open={profileOpen} onClose={() => setProfileOpen(false)} onReset={async () => {
+          const full = await resetLots();
+          notify(full ? 'Lots reset' : 'Reset on this phone only. Update Code.gs to restart from Lot 1');
+        }} />
       <div className="navroot">
         <nav className="bnav" style={{ '--i': tab === 'photo' ? 0 : 1 } as CSSProperties}>
           <span className="ind" aria-hidden="true" />
