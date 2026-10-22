@@ -51,3 +51,16 @@ export function videoFrameToJpegBase64(video: HTMLVideoElement, max = 2400, qual
   ctx.drawImage(video, 0, 0, width, height);
   return stripDataUrlPrefix(canvas.toDataURL('image/jpeg', quality));
 }
+
+/** Small preview (data: URL) of a JPEG given as base64. Used for chat thumbnails. */
+export async function thumbDataUrl(imageBase64: string, max = 240, quality = 0.7): Promise<string> {
+  const img = await loadImage(`data:image/jpeg;base64,${imageBase64}`);
+  const { width, height } = fitSize(img.naturalWidth, img.naturalHeight, max);
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not process the photo.');
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', quality);
+}

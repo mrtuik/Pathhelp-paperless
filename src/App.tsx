@@ -62,11 +62,15 @@ function Main() {
       {toast && <div className="toast">{toast}</div>}
       <nav className="tabbar">
         <button type="button" className={`tabbtn${tab === 'photo' ? ' tabbtn-active' : ''}`} onClick={() => setTab('photo')}>
-          <CameraIcon />
+          <span className="tabicon">
+            <CameraIcon size={22} />
+          </span>
           <span>Photo</span>
         </button>
         <button type="button" className={`tabbtn${tab === 'list' ? ' tabbtn-active' : ''}`} onClick={() => setTab('list')}>
-          <ListIcon />
+          <span className="tabicon">
+            <ListIcon size={26} />
+          </span>
           <span>List</span>
         </button>
       </nav>

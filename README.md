@@ -100,8 +100,13 @@ npm run dev      # browser preview (camera and native HTTP only work on the phon
 - `src/ocr.ts` calls the plugin, `src/parse.ts` turns the text into PT numbers and the rack number (same rules as the old Apps Script parser, with unit tests).
 - Tips for good reads: hold the phone straight at the screen, fill the frame, avoid glare. You can always fix the numbers before saving.
 
-## Look and camera
+## Look and flow (chat style)
 
-- Black and white theme (light and dark mode follow the phone), centred "Paperless entry" header.
-- "Take rack photo" opens an in-app full-screen camera (live preview, white shutter, back arrow, torch button when the phone supports it). If the live camera cannot start, the app falls back to the phone's camera app.
-- App icon, splash and the home-screen glyph come from `resources/paper-glyph.png`.
+- Theme matches the Pathhelp extension: shadcn/ui zinc look, lucide-style icons, black tab bar and black NOW card (light and dark follow the phone). Gallery and List icons are the supplied artwork.
+- The Photo tab is a chat, like ChatGPT. Tap **+** in the message box and choose **Camera** or **Gallery**.
+- **Camera** opens as a half-screen sheet (live preview, shutter, close, torch). If the live camera cannot start, the app falls back to the phone's camera app.
+- After the photo is taken or picked, a bottom sheet shows the rack number and the PT numbers it read (tap Edit to fix them). **Confirm** sends them to the Google Sheet.
+- Closing the sheet keeps the photo attached above the message box; the arrow button reopens it. Discard removes it.
+- The reply in the chat says which rack was uploaded to which Lot, how many PT numbers were added or updated, lists the selected PT numbers, and shows the racks uploaded so far in that Lot. A failed upload shows Retry.
+- Chat history (last 40 messages, small photo previews) is kept on the phone.
+- App icon, splash and the empty-screen glyph come from `resources/paper-glyph.png`.

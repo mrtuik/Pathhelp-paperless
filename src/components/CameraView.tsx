@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { videoFrameToJpegBase64 } from '../image';
-import { BoltIcon, ChevronLeftIcon } from './Icons';
+import { BoltIcon, XIcon } from './Icons';
 
 interface Props {
   onCapture: (imageBase64: string) => void;
@@ -11,7 +11,7 @@ interface Props {
 
 type TorchCaps = MediaTrackCapabilities & { torch?: boolean };
 
-/** Full-screen in-app camera: live preview, big shutter button, back arrow, optional torch. */
+/** Half-screen camera in a bottom sheet: live preview, shutter, close, optional torch. */
 export function CameraView({ onCapture, onClose, onUnavailable }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -92,21 +92,25 @@ export function CameraView({ onCapture, onClose, onUnavailable }: Props) {
   };
 
   return (
-    <div className="camera">
-      <video ref={videoRef} className="camera-video" playsInline muted autoPlay />
-      <div className="camera-hint">Fit the rack screen in the frame</div>
-      <div className="camera-bar">
-        <button type="button" className="camera-side" aria-label="Back" onClick={onClose}>
-          <ChevronLeftIcon size={26} />
-        </button>
-        <button type="button" className="shutter" aria-label="Take photo" onClick={shoot} disabled={!ready} />
-        {canTorch ? (
-          <button type="button" className={`camera-side${torchOn ? ' camera-side-on' : ''}`} aria-label="Torch" aria-pressed={torchOn} onClick={() => void toggleTorch()}>
-            <BoltIcon size={24} />
+    <div className="sheet-backdrop" onClick={onClose}>
+      <div className="cam-sheet" role="dialog" aria-label="Camera" onClick={(e) => e.stopPropagation()}>
+        <video ref={videoRef} className="cam-video" playsInline muted autoPlay />
+        <div className="cam-top">
+          <button type="button" className="cam-btn" aria-label="Close camera" onClick={onClose}>
+            <XIcon size={22} />
           </button>
-        ) : (
-          <span className="camera-side camera-side-empty" />
-        )}
+          <span className="cam-hint">Fit the rack screen in the frame</span>
+          {canTorch ? (
+            <button type="button" className={`cam-btn${torchOn ? ' cam-btn-on' : ''}`} aria-label="Torch" aria-pressed={torchOn} onClick={() => void toggleTorch()}>
+              <BoltIcon size={20} />
+            </button>
+          ) : (
+            <span className="cam-btn cam-btn-empty" />
+          )}
+        </div>
+        <div className="cam-bottom">
+          <button type="button" className="shutter" aria-label="Take photo" onClick={shoot} disabled={!ready} />
+        </div>
       </div>
     </div>
   );
