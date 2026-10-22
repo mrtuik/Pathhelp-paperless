@@ -82,3 +82,16 @@ edit(path.join(androidDir, 'app/build.gradle'), (x) => {
   if (x.includes('com.google.mlkit:text-recognition')) return x;
   return x.replace(/\ndependencies\s*\{/, "\ndependencies {\n    implementation 'com.google.mlkit:text-recognition:16.0.1'");
 });
+
+// ---- White status bar + navigation bar (dark icons) ----
+edit(path.join(res, 'values/styles.xml'), (x) => {
+  if (x.includes('android:statusBarColor')) return x;
+  const items =
+    '        <item name="android:statusBarColor">#FFFFFF</item>\n' +
+    '        <item name="android:windowLightStatusBar">true</item>\n' +
+    '        <item name="android:navigationBarColor">#FFFFFF</item>\n' +
+    '        <item name="android:windowLightNavigationBar">true</item>\n' +
+    '        <item name="android:forceDarkAllowed">false</item>\n';
+  return x.replace(/(<style name="AppTheme\.NoActionBar"[^>]*>)/, `$1\n${items}`);
+});
+edit(path.join(res, 'values/colors.xml'), (x) => x.replace(/(<color name="colorPrimaryDark">)#[0-9A-Fa-f]{6,8}/, '$1#FFFFFF'));

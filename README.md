@@ -102,7 +102,7 @@ npm run dev      # browser preview (camera and native HTTP only work on the phon
 
 ## Look and flow (chat style)
 
-- Theme matches the Pathhelp extension: shadcn/ui zinc look, lucide-style icons, black tab bar and black NOW card (light and dark follow the phone). Gallery and List icons are the supplied artwork.
+- Theme matches the Pathhelp extension: shadcn/ui zinc look, lucide-style icons, white tab bar, white status bar and black NOW card (white theme). Gallery and List icons are the supplied artwork.
 - The Photo tab is a chat, like ChatGPT. Tap **+** in the message box and choose **Camera** or **Gallery**.
 - **Camera** opens as a half-screen sheet (live preview, shutter, close, torch). If the live camera cannot start, the app falls back to the phone's camera app.
 - After the photo is taken or picked, a bottom sheet shows the rack number and the PT numbers it read (tap Edit to fix them). **Confirm** sends them to the Google Sheet.

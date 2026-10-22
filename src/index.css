@@ -11,13 +11,14 @@
   font-display: swap;
 }
 
-/* Theme: shadcn/ui (zinc) look, same as the Pathhelp extension. Light and dark follow the phone. */
+/* Theme: shadcn/ui (zinc) look, same as the Pathhelp extension. White theme only. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --radius: 10px;
   --bg: #ffffff;
   --surface: #ffffff;
   --muted-bg: #f4f4f5;
+  --composer-bg: #ffffff;
   --text: #09090b;
   --muted: #71717a;
   --border: #e4e4e7;
@@ -32,38 +33,13 @@
   --hero: #09090b;
   --on-hero: #fafafa;
   --hero-muted: #a1a1aa;
-  --bar: #09090b;
-  --on-bar: #a1a1aa;
-  --on-bar-active: #fafafa;
+  --bar: #ffffff;
+  --on-bar: #71717a;
+  --on-bar-active: #09090b;
   --done-bg: #f4f4f5;
   --done-text: #71717a;
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #09090b;
-    --surface: #0f0f11;
-    --muted-bg: #27272a;
-    --text: #fafafa;
-    --muted: #a1a1aa;
-    --border: #27272a;
-    --accent: #fafafa;
-    --on-accent: #18181b;
-    --danger: #f87171;
-    --danger-bg: #2a1212;
-    --ok: #4ade80;
-    --ok-bg: #0f2418;
-    --warn: #fbbf24;
-    --warn-bg: #2b2108;
-    --hero: #18181b;
-    --on-hero: #fafafa;
-    --hero-muted: #a1a1aa;
-    --bar: #000000;
-    --done-bg: #18181b;
-    --done-text: #71717a;
-  }
 }
 
 * {
@@ -205,7 +181,7 @@ code {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 .tabbtn-active .tabicon {
   opacity: 1;
@@ -284,7 +260,12 @@ code {
   opacity: 0.8;
 }
 .round-btn:disabled {
-  opacity: 0.3;
+  opacity: 1;
+}
+.round-btn-solid:disabled {
+  background: var(--bg);
+  color: #a1a1aa;
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 .link-btn {
   display: inline-flex;
@@ -794,9 +775,10 @@ code {
   gap: 4px;
   min-height: 54px;
   padding: 7px;
-  background: var(--muted-bg);
+  background: var(--composer-bg);
   border: 1px solid var(--border);
   border-radius: 28px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .composer-text {
   flex: 1;
