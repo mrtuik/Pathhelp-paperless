@@ -41,7 +41,7 @@ edit(path.join(androidDir, 'app/src/main/AndroidManifest.xml'), (x) => {
 edit(path.join(androidDir, 'variables.gradle'), (x) => x.replace(/minSdkVersion\s*=\s*\d+/, 'minSdkVersion = 24'));
 
 // Launcher icon background colour
-edit(path.join(res, 'values/ic_launcher_background.xml'), (x) => x.replace(/#[0-9A-Fa-f]{6,8}/, '#0F172A'));
+edit(path.join(res, 'values/ic_launcher_background.xml'), (x) => x.replace(/#[0-9A-Fa-f]{6,8}/, '#E9E8E5'));
 
 // Icons
 const iconSrc = path.join(root, 'resources/android');

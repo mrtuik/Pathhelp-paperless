@@ -99,3 +99,9 @@ npm run dev      # browser preview (camera and native HTTP only work on the phon
 - `resources/native/MlkitOcrPlugin.java` is a small Capacitor plugin around ML Kit. `scripts/patch-android.mjs` copies it into `android/`, registers it in `MainActivity.java` and adds `com.google.mlkit:text-recognition` to `android/app/build.gradle` on every build.
 - `src/ocr.ts` calls the plugin, `src/parse.ts` turns the text into PT numbers and the rack number (same rules as the old Apps Script parser, with unit tests).
 - Tips for good reads: hold the phone straight at the screen, fill the frame, avoid glare. You can always fix the numbers before saving.
+
+## Look and camera
+
+- Black and white theme (light and dark mode follow the phone), centred "Paperless entry" header.
+- "Take rack photo" opens an in-app full-screen camera (live preview, white shutter, back arrow, torch button when the phone supports it). If the live camera cannot start, the app falls back to the phone's camera app.
+- App icon, splash and the home-screen glyph come from `resources/paper-glyph.png`.

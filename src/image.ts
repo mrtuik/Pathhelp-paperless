@@ -39,3 +39,15 @@ export async function downscaleToJpegBase64(src: string, max = 1800, quality = 0
   ctx.drawImage(img, 0, 0, width, height);
   return stripDataUrlPrefix(canvas.toDataURL('image/jpeg', quality));
 }
+
+/** Grabs the current frame of a playing <video> as JPEG base64 (no data: prefix), longest side <= max. */
+export function videoFrameToJpegBase64(video: HTMLVideoElement, max = 2400, quality = 0.9): string {
+  const { width, height } = fitSize(video.videoWidth, video.videoHeight, max);
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not process the photo.');
+  ctx.drawImage(video, 0, 0, width, height);
+  return stripDataUrlPrefix(canvas.toDataURL('image/jpeg', quality));
+}

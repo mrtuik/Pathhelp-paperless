@@ -6,6 +6,7 @@ import { recognizeText } from '../ocr';
 import { parseOcrText } from '../parse';
 import { parseIdText } from '../ids';
 import type { SaveResult } from '../types';
+import { CameraView } from './CameraView';
 import { CameraIcon, ImageIcon } from './Icons';
 
 type Phase = 'idle' | 'reading' | 'edit' | 'saving';
@@ -18,6 +19,7 @@ const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(
 
 export function PhotoTab({ onSaved }: Props) {
   const [phase, setPhase] = useState<Phase>('idle');
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [rack, setRack] = useState('');
   const [idsText, setIdsText] = useState('');
   const [newLot, setNewLot] = useState(false);
@@ -34,6 +36,23 @@ export function PhotoTab({ onSaved }: Props) {
     setError(null);
   };
 
+  /** Reads the numbers from a JPEG (base64) on the device and opens the edit form. */
+  const runOcr = async (base64: string) => {
+    setPhase('reading');
+    try {
+      const r = parseOcrText(await recognizeText(base64));
+      setRack(r.rack ? String(r.rack) : '');
+      setIdsText(r.ids.join('\n'));
+      setNoPt(r.ids.length === 0);
+      setNewLot(false);
+      setPhase('edit');
+    } catch (e) {
+      setError(errMsg(e));
+      setPhase('idle');
+    }
+  };
+
+  /** Native picker: used for the gallery, and as a fallback if the live camera cannot start. */
   const pick = async (source: CameraSource) => {
     setError(null);
     setSuccess(null);
@@ -60,17 +79,17 @@ export function PhotoTab({ onSaved }: Props) {
     setPhase('reading');
     try {
       // Bigger than the 1800 px default: small screen text reads better at higher resolution.
-      const base64 = await downscaleToJpegBase64(webPath, 2400, 0.9);
-      const r = parseOcrText(await recognizeText(base64));
-      setRack(r.rack ? String(r.rack) : '');
-      setIdsText(r.ids.join('\n'));
-      setNoPt(r.ids.length === 0);
-      setNewLot(false);
-      setPhase('edit');
+      await runOcr(await downscaleToJpegBase64(webPath, 2400, 0.9));
     } catch (e) {
       setError(errMsg(e));
       setPhase('idle');
     }
+  };
+
+  const openCamera = () => {
+    setError(null);
+    setSuccess(null);
+    setCameraOpen(true);
   };
 
   const save = async () => {
@@ -100,6 +119,20 @@ export function PhotoTab({ onSaved }: Props) {
       setPhase('edit');
     }
   };
+
+  const camera = cameraOpen ? (
+    <CameraView
+      onClose={() => setCameraOpen(false)}
+      onCapture={(base64) => {
+        setCameraOpen(false);
+        void runOcr(base64);
+      }}
+      onUnavailable={() => {
+        setCameraOpen(false);
+        void pick(CameraSource.Camera);
+      }}
+    />
+  ) : null;
 
   if (phase === 'reading') {
     return (
@@ -160,18 +193,23 @@ export function PhotoTab({ onSaved }: Props) {
 
   return (
     <div className="tab">
-      <div className="scroll pad">
-        <h1 className="title">Rack photo</h1>
-        <p className="muted">Photograph the analyser rack screen. The PT numbers are read automatically and you can fix them before saving.</p>
-        {success && <div className="banner banner-ok">{success}</div>}
-        {error && <div className="banner banner-error">{error}</div>}
-        <button type="button" className="btn btn-primary btn-big" onClick={() => void pick(CameraSource.Camera)}>
-          <CameraIcon size={26} /> Take rack photo
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={() => void pick(CameraSource.Photos)}>
-          <ImageIcon /> Choose from gallery
-        </button>
+      <div className="scroll">
+        <div className="home">
+          <div className="hero-icon" aria-hidden="true" />
+          <p className="hero-text">Photograph the analyser rack screen</p>
+          {success && <div className="banner banner-ok">{success}</div>}
+          {error && <div className="banner banner-error">{error}</div>}
+          <div className="actions">
+            <button type="button" className="btn btn-primary btn-big" onClick={openCamera}>
+              <CameraIcon size={24} /> Take rack photo
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => void pick(CameraSource.Photos)}>
+              <ImageIcon /> Choose from gallery
+            </button>
+          </div>
+        </div>
       </div>
+      {camera}
     </div>
   );
 }

@@ -49,3 +49,13 @@ export const UndoIcon = ({ size }: { size?: number }) => (
     <path d="M4 9h10a6 6 0 0 1 0 12h-3" />
   </Svg>
 );
+export const ChevronLeftIcon = ({ size }: { size?: number }) => (
+  <Svg size={size}>
+    <path d="M15 5l-7 7 7 7" />
+  </Svg>
+);
+export const BoltIcon = ({ size }: { size?: number }) => (
+  <Svg size={size}>
+    <path d="M13 3L5 13.5h6L10 21l8-10.5h-6z" />
+  </Svg>
+);

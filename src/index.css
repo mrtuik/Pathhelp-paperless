@@ -14,12 +14,12 @@
 :root {
   color-scheme: light dark;
   --radius: 4px;
-  --bg: #f4f5f7;
+  --bg: #f4f4f2;
   --surface: #ffffff;
-  --text: #11151b;
-  --muted: #566170;
-  --border: #d5dae1;
-  --accent: #0b5fc0;
+  --text: #111111;
+  --muted: #5c5f63;
+  --border: #dcdcd8;
+  --accent: #111111;
   --on-accent: #ffffff;
   --danger: #a8231b;
   --danger-bg: #fdeceb;
@@ -27,35 +27,35 @@
   --ok-bg: #e5f5ec;
   --warn: #7a4b00;
   --warn-bg: #fff3d6;
-  --hero: #11151b;
-  --on-hero: #f4f6f8;
-  --hero-muted: #aab3bf;
-  --done-bg: #e9ebef;
-  --done-text: #5f6975;
+  --hero: #111111;
+  --on-hero: #f4f4f2;
+  --hero-muted: #a9aaad;
+  --done-bg: #e9e9e6;
+  --done-text: #62656a;
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0d1015;
-    --surface: #161a21;
-    --text: #eef1f5;
-    --muted: #a2acb9;
-    --border: #2a313b;
-    --accent: #6aaaff;
-    --on-accent: #07111f;
+    --bg: #0e0e0e;
+    --surface: #181818;
+    --text: #f2f2f0;
+    --muted: #a5a7aa;
+    --border: #2d2d2d;
+    --accent: #f2f2f0;
+    --on-accent: #111111;
     --danger: #ff9188;
     --danger-bg: #3a1714;
     --ok: #6fd69a;
     --ok-bg: #12301f;
     --warn: #ffd37a;
     --warn-bg: #3a2c08;
-    --hero: #232b37;
-    --on-hero: #f4f6f8;
-    --hero-muted: #aab3bf;
-    --done-bg: #1d222a;
-    --done-text: #8e98a5;
+    --hero: #262626;
+    --on-hero: #f4f4f2;
+    --hero-muted: #a9aaad;
+    --done-bg: #1f1f1f;
+    --done-text: #8f9296;
   }
 }
 
@@ -105,7 +105,16 @@ code {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: env(safe-area-inset-top);
+}
+.header {
+  flex: none;
+  padding: calc(env(safe-area-inset-top) + 14px) 16px 14px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 .main {
   flex: 1;
@@ -179,7 +188,7 @@ code {
   font: 600 12px var(--sans);
 }
 .tabbtn-active {
-  color: var(--accent);
+  color: var(--text);
 }
 
 /* buttons & forms */
@@ -253,7 +262,7 @@ code {
   font-size: 16px;
 }
 .input:focus {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text);
   outline-offset: 0;
 }
 .textarea {
@@ -296,7 +305,7 @@ code {
   width: 36px;
   height: 36px;
   border: 4px solid var(--border);
-  border-top-color: var(--accent);
+  border-top-color: var(--text);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }
@@ -409,7 +418,7 @@ code {
 }
 .now-bar-fill {
   height: 100%;
-  background: #6fd69a;
+  background: var(--on-hero);
 }
 .rack {
   margin-bottom: 16px;
@@ -522,4 +531,103 @@ code {
   text-align: center;
   font-size: 15px;
   z-index: 30;
+}
+
+/* home (photo tab) */
+.home {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 20px;
+  text-align: center;
+}
+.hero-icon {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+  background: var(--text);
+  -webkit-mask: url('./assets/paper.png') center / contain no-repeat;
+  mask: url('./assets/paper.png') center / contain no-repeat;
+}
+.hero-text {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 16px;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* in-app camera */
+.camera {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+}
+.camera-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.camera-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: calc(env(safe-area-inset-top) + 18px) 16px 40px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), transparent);
+}
+.camera-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 28px calc(28px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+.camera-side {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.camera-side-on {
+  background: #fff;
+  color: #000;
+}
+.camera-side-empty {
+  background: transparent;
+}
+.shutter {
+  width: 76px;
+  height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4);
+}
+.shutter:active {
+  transform: scale(0.94);
+}
+.shutter:disabled {
+  opacity: 0.5;
 }

@@ -41,6 +41,7 @@ function Main() {
 
   return (
     <div className="app">
+      <header className="header">Paperless entry</header>
       <main className="main">
         <div className="pane" hidden={tab !== 'photo'}>
           <PhotoTab onSaved={onSaved} />
